@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aethel // Autonomous Ecosystem</title>
+  <style>
+    body { background: #0f172a; color: #f8fafc; font-family: monospace; padding: 20px; margin: 0; }
+    h1 { color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-top: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .card { background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .card h3 { margin-top: 0; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
+    .badge { background: #0284c7; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; text-transform: uppercase; }
+    pre { color: #cbd5e1; margin: 0; font-size: 0.85rem; max-height: 120px; overflow-y: auto; }
+    .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+    button { background: #0284c7; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: monospace; flex: 1; }
+    button:hover { background: #0369a1; }
+    button.secondary { background: #334155; }
+    button.secondary:hover { background: #475569; }
+    .log-box { background: #090d16; padding: 10px; border-radius: 4px; border: 1px solid #1e293b; font-size: 0.8rem; height: 100px; overflow-y: auto; color: #34d399; }
+  </style>
+</head>
+<body>
+  <h1>Aethel // Autonomous Ecosystem</h1>
+  
+  <div class="grid" id="pillars-grid">
+    <div class="card">
+      <h3>Sovereignty <span class="badge">Active</span></h3>
+      <p>Identity & Governance Core</p>
+      <pre>Status: Nominal</pre>
+    </div>
+    <div class="card">
+      <h3>Orchestration <span class="badge">Active</span></h3>
+      <p>Task Routing & Schedules</p>
+      <pre>Status: Nominal</pre>
+    </div>
+    <div class="card">
+      <h3>Communication <span class="badge">Active</span></h3>
+      <p>Endpoints & Webhooks</p>
+      <pre>Status: Nominal</pre>
+    </div>
+    <div class="card">
+      <h3>Persistence <span class="badge">Active</span></h3>
+      <p>PM2 & State Preservation</p>
+      <pre>Status: Nominal</pre>
+    </div>
+    <div class="card">
+      <h3>Security <span class="badge">Active</span></h3>
+      <p>Anomaly Detection & Rate Limits</p>
+      <pre>Status: Nominal</pre>
+    </div>
+    <div class="card">
+      <h3>Evolution <span class="badge">Active</span></h3>
+      <p>Self-Adaptation & Mutations</p>
+      <pre>Status: Nominal</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Live Ecosystem Status & Event Log</h3>
+    <pre id="status">Loading metrics...</pre>
+    <div class="btn-group">
+      <button onclick="triggerEvent('security:anomaly', { source: 'dashboard' })">Trigger Security Anomaly</button>
+      <button class="secondary" onclick="fetchStatus()">Refresh Status</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 15px;">
+    <h3>Activity Log Stream</h3>
+    <div id="logs" class="log-box">[System] Dashboard UI connected to Aethel core matrix.</div>
+  </div>
+
+  <script>
+    async function fetchStatus() {
+      try {
+        const res = await fetch('/api/ecosystem/status');
+        const data = await res.json();
+        document.getElementById('status').innerText = JSON.stringify(data, null, 2);
+        appendLog('Status pulse checked successfully.');
+      } catch (e) {
+        document.getElementById('status').innerText = 'Error connecting to core server.';
+        appendLog('Connection error to ecosystem API.');
+      }
+    }
+
+    async function triggerEvent(event, payload) {
+      appendLog(`Emitting event: ${event}`);
+      try {
+        const res = await fetch('/api/ecosystem/trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event, payload })
+        });
+        const data = await res.json();
+        appendLog(`Event acknowledged: ${JSON.stringify(data.event)}`);
+        fetchStatus();
+      } catch (e) {
+        appendLog(`Failed to trigger event: ${event}`);
+      }
+    }
+
+    function appendLog(text) {
+      const box = document.getElementById('logs');
+      const time = new Date().toLocaleTimeString();
+      box.innerHTML += `<div>[${time}] ${text}</div>`;
+      box.scrollTop = box.scrollHeight;
+    }
+
+    fetchStatus();
+    setInterval(fetchStatus, 5000);
+  </script>
+</body>
+</html>
